@@ -1,3 +1,3 @@
 module.exports = {
-    firma: 'projectDelilah'
+    firma: 'projectDelilah',
 }

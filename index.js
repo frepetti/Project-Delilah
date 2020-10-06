@@ -3,8 +3,7 @@ const server = express();
 const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
 const sequelize = require('./mysql');
-const config = require ('./config');
-
+const moment = require ('moment');
 
 server.use(bodyParser.json());
 server.listen('3000', () => console.log('Server iniciado'));

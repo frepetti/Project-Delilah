@@ -1,10 +1,12 @@
 const express = require('express');
 const server = express();
 const sequelize = require('./../../mysql');
+const authMiddleware = require('./../../middlewares/auth');
+const adminMiddleware = require('./../../middlewares/admin');
 
 //Consultar productos activos
 
-server.get('/', async(req,res) => {
+server.get('/', authMiddleware, async(req,res) => {
     try {
         const data = await sequelize.query(
             'SELECT * from products WHERE active = 1',
@@ -18,7 +20,7 @@ server.get('/', async(req,res) => {
 
 //Insertar un producto
 
-server.post('/', async(req,res) => {
+server.post('/', authMiddleware, adminMiddleware, async(req,res) => {
     try {
         const {description, price, picture, price_discount, active } = req.body;
         await sequelize.query(
@@ -37,7 +39,7 @@ server.post('/', async(req,res) => {
 });
 
 //Actualizar un producto
-server.put('/:id', async(req,res) => {
+server.put('/:id', authMiddleware, adminMiddleware, async(req,res) => {
     try {
         const {description, price, picture, price_discount, active } = req.body;
         await sequelize.query(
@@ -58,7 +60,32 @@ server.put('/:id', async(req,res) => {
 })
 
 //Borrar un producto
+server.delete('/:id', authMiddleware, adminMiddleware, async(req, res) => {
 
+    try {
+        await sequelize.query(
+            `DELETE FROM products WHERE id = :id`,
+        { replacements: { id: parseInt(req.params.id) } }
+        );
+    
+        res.sendStatus(200);
+    } catch (err) {
+        res.send(err);
+    }
 
+});
+
+//Ver un producto
+server.get('/:id', authMiddleware, async(req,res) => {
+    try {
+        const data = await sequelize.query(
+            'SELECT * from products WHERE id = :id',
+            { replacements: { id: parseInt(req.params.id) }, type: sequelize.QueryTypes.SELECT },
+        )
+        res.send(data);
+    } catch(err){
+        res.send(err);
+    }
+});
 
 module.exports = server;
