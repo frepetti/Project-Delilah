@@ -54,7 +54,7 @@ server.get('/', authMiddleware, async(req,res) => {
 
 
 //Consultar una orden
-server.get('/:id', authMiddleware, async(req,res) => {
+server.get('/:id', authMiddleware, adminMiddleware, async(req,res) => {
     try {
         const data = await sequelize.query(
             `SELECT order_status.description, client_orders.time, client_orders.id, payment_method.description, products.description, products.price, users.name, users.last_name, users.address 
