@@ -18,12 +18,12 @@ module.exports = (req, res, next) => {
 
     const token = authHeader && authHeader.split(' ')[1]; //authHeader && authHeader.split => si authHeader existe, entonces hacer el split
     const authData = jwt.verify(token, config.firma)
-    
-    //Admin
-    res.locals.isAdmin = authData.role;
+
+    //Role & ID
+    res.locals.role = authData.role;
+    res.locals.user_id = authData.id;
 
     if (authData) {
-        console.log(authData)
         return next();
     }
 

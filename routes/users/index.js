@@ -29,17 +29,17 @@ server.post('/', async (req,res) => {
 
 //Crear Usuario Admin
 
-server.post('/', authMiddleware, adminMiddleware, async (req,res) => {
+server.post('/admin', authMiddleware, adminMiddleware, async (req,res) => {
     try{
-        const { username, name, last_name, email, phone, address, password, role_id} = req.body;
+        const { username, name, last_name, email, phone, address, password} = req.body;
         await sequelize.query(
             `INSERT into users
                 (username, name, last_name, email, phone, address, password, role_id)
             VALUE
-                (?, ?, ?, ?, ?, ?, ?, ?)
+                (?, ?, ?, ?, ?, ?, ?, 1)
             
             `,
-        { replacements: [ username, name, last_name, email, phone, address, password, role_id ] }
+        { replacements: [ username, name, last_name, email, phone, address, password] }
         );
         res.sendStatus(200);
     } catch(err) {
@@ -64,18 +64,19 @@ server.post('/login', async (req,res) => {
             const token = jwt.sign({    //Genero una variable token y guardo los datos firmados
                 username: data[0].username,
                 role: data[0].role,
+                user_id: data[0].id,
             }, config.firma)
 
             res.send({
                 username: data[0].username,
                 role: data[0].role,
+                user_id: data[0].id,
                 token
             });
         }  else {
             res.send('Usuario o contraseña incorrectos')
         }
 
-        res.send(data);
     } catch (err) {
         res.send(err);
     }

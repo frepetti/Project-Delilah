@@ -1,6 +1,6 @@
 module.exports = (req, res, next) => {
-    const isAdmin = res.locals.isAdmin;
-    if (isAdmin === 'Admin') {
+    const role = res.locals.role;
+    if (role === 'Admin') {
         return next();
     }
 
