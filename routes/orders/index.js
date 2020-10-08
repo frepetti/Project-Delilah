@@ -82,24 +82,30 @@ server.post('/', authMiddleware, async(req,res) => {
         const token = authHeader && authHeader.split(' ')[1];
         const authData = jwt.verify(token, config.firma);
         const user_id = authData.user_id;
+        const paymentMethod = Object.values(req.body[0])[0];
         await sequelize.query(
             `INSERT into client_orders
                 (user_id, payment_id, status_id)
             VALUES
                 (?, ?, 1)
             `,
-        { replacements: [ user_id, payment_id ] }
-        );
-        const data = await sequelize.query('SELECT MAX(id) FROM client_orders', { type: sequelize.QueryTypes.SELECT });
+        { replacements: [ user_id, paymentMethod ] });
+
+        const data = await sequelize.query(
+            'SELECT MAX(id) FROM client_orders', 
+            { type: sequelize.QueryTypes.SELECT });
+
         const last_order = Object.values(data[0])[0];
-        await sequelize.query(`
+        async function insertProducts (product, i, array) {
+            await sequelize.query(`
             INSERT INTO order_products
             (order_id, product_id)
             VALUES 
             (?, ?)`,
-            { replacements: [last_order, product_id] }
-        );
-        res.send("Orden creada correctamente");
+            { replacements: [last_order, product.product_id] });
+        };
+        req.body.forEach(insertProducts);
+        res.status(200).send("Orden creada correctamente");
     } catch (err) {
         res.send(err);
     }
